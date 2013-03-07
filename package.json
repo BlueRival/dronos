@@ -1,0 +1,26 @@
+{
+	"name":            "dronos",
+	"description":     "Dronos is a distributed scheduling system (with patterns similar to Linux's cron system), using MongoDB to coordinate running tasks (drons) across multiple nodes.",
+	"version":         "0.0.1",
+	"author":          "Anthony Hildoer <anthony@bluerival.com>",
+	"repository":      {
+		"type": "git",
+		"url":  "git@github.com:BlueRival/dronos.git"
+	},
+	"dependencies":    {
+	},
+	"devDependencies": {
+		"mocha": "~1"
+	},
+	"keywords":        [
+		"distributed",
+		"chronos",
+		"tasks",
+		"cron",
+		"mongodb"
+	],
+	"engines":         {
+		"node": ">=0.6.0"
+	},
+	"license":         "MIT"
+}
