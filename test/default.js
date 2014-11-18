@@ -164,7 +164,7 @@ describe( 'Dronos', function() {
 				if ( err ) {
 					done();
 				} else {
-					done(  new Error( 'did not return an error') );
+					done( new Error( 'did not return an error' ) );
 				}
 			} );
 
@@ -179,6 +179,7 @@ describe( 'Dronos', function() {
 				start:      '2014-01-01T00:12:00.001Z'
 			};
 
+			var nextRuntime = getNextRun();
 			dronos.set( inputSchedule, function( err ) {
 
 				if ( err ) {
@@ -210,7 +211,7 @@ describe( 'Dronos', function() {
 							assert.strictEqual( schedule[ fields[ i ] ], inputSchedule[ fields[ i ] ] );
 						}
 
-						assert.strictEqual( schedule._nextRun.toISOString(), '2014-01-01T00:15:00.000Z' );
+						assert.strictEqual( schedule._nextRun.toISOString(), nextRuntime );
 
 						done();
 					} catch ( e ) {
@@ -549,3 +550,13 @@ describe( 'Dronos', function() {
 	} );
 
 } );
+
+function getNextRun() {
+	var time = moment().millisecond( 0 ).seconds( 0 );
+
+	var offset = 15 - ( time.minutes() % 15);
+	time.add( offset, 'minutes' );
+
+	return time.toISOString();
+
+}
