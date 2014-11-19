@@ -489,7 +489,10 @@ describe( 'Dronos', function() {
 			var inputSchedule = {
 				owner:      '1234',
 				name:       'a.test.schedule',
-				recurrence: '* * * * *'
+				recurrence: '* * * * *',
+				params:     {
+					hi: 'there'
+				}
 			};
 
 			dronos.set( inputSchedule, function( err ) {
