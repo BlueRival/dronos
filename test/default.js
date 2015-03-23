@@ -15,38 +15,38 @@ describe( 'Dronos', function() {
 		it( 'should NOT instantiate', function() {
 			assert.throws( function() {
 				dronos = new Dronos();
-			} );
-		}, Error );
-
-		it( 'should NOT instantiate', function() {
-			assert.throws( function() {
-				dronos = new Dronos( {
-										 mongodb: null
-									 } );
 			}, Error );
 		} );
 
 		it( 'should NOT instantiate', function() {
 			assert.throws( function() {
 				dronos = new Dronos( {
-										 mongodb: ''
-									 } );
+					mongodb: null
+				} );
 			}, Error );
 		} );
 
 		it( 'should NOT instantiate', function() {
 			assert.throws( function() {
 				dronos = new Dronos( {
-										 mongodb: undefined
-									 } );
+					mongodb: ''
+				} );
+			}, Error );
+		} );
+
+		it( 'should NOT instantiate', function() {
+			assert.throws( function() {
+				dronos = new Dronos( {
+					mongodb: undefined
+				} );
 			}, Error );
 		} );
 
 		it( 'should instantiate', function( done ) {
 			dronos = new Dronos( {
-									 prefix:  '_testing',
-									 mongodb: 'mongodb://localhost/testing'
-								 } );
+				prefix:  '_testing',
+				mongodb: 'mongodb://localhost/testing'
+			} );
 			done();
 		} );
 
@@ -57,14 +57,14 @@ describe( 'Dronos', function() {
 		beforeEach( function( done ) {
 
 			dronos = new Dronos( {
-									 prefix:  '_testing',
-									 mongodb: 'mongodb://localhost/testing'
-								 } );
+				prefix:  '_testing',
+				mongodb: 'mongodb://localhost/testing'
+			} );
 
 			dronos.remove( {
-							   owner: '1234',
-							   name:  'a.test.schedule'
-						   }, function( err ) {
+				owner: '1234',
+				name:  'a.test.schedule'
+			}, function( err ) {
 				done( err );
 			} );
 
@@ -74,9 +74,9 @@ describe( 'Dronos', function() {
 
 			dronos.stop();
 			dronos.remove( {
-							   owner: '1234',
-							   name:  'a.test.schedule'
-						   }, function( err ) {
+				owner: '1234',
+				name:  'a.test.schedule'
+			}, function( err ) {
 				done( err );
 			} );
 
@@ -90,7 +90,23 @@ describe( 'Dronos', function() {
 				dronos.set( function( err ) {
 					// NO-OP
 				} );
-			}, /done should be a function/ );
+			}, /callback must be a function/ );
+
+		} );
+
+		it( 'should NOT set a schedule item with invalid schedule object', function() {
+
+			dronos.set( {}, function( err ) {
+				assert.equal( err.message, 'owner is a required string parameter' );
+			} );
+
+		} );
+
+		it( 'should NOT set a schedule item with array as schedule object', function() {
+
+			dronos.set( [], function( err ) {
+				assert.equal( err.message, 'schedule is a required object parameter' );
+			} );
 
 		} );
 
@@ -138,11 +154,11 @@ describe( 'Dronos', function() {
 		it( 'should NOT set a schedule item when end time in past', function( done ) {
 
 			dronos.set( {
-							owner:      '1234',
-							name:       'a.test.schedule',
-							recurrence: '*/15 * * * *',
-							end:        '2013-10-01T00:00:00Z'
-						}, function( err ) {
+				owner:      '1234',
+				name:       'a.test.schedule',
+				recurrence: '*/15 * * * *',
+				end:        '2013-10-01T00:00:00Z'
+			}, function( err ) {
 				if ( err ) {
 					done();
 				} else {
@@ -155,12 +171,12 @@ describe( 'Dronos', function() {
 		it( 'should NOT set a schedule item when end time is before start time', function( done ) {
 
 			dronos.set( {
-							owner:      '1234',
-							name:       'a.test.schedule',
-							recurrence: '*/15 * * * *',
-							start:      moment().add( 2, 'years' ),
-							end:        moment().add( 2, 'days' )
-						}, function( err ) {
+				owner:      '1234',
+				name:       'a.test.schedule',
+				recurrence: '*/15 * * * *',
+				start:      moment().add( 2, 'years' ),
+				end:        moment().add( 2, 'days' )
+			}, function( err ) {
 				if ( err ) {
 					done();
 				} else {
@@ -312,9 +328,9 @@ describe( 'Dronos', function() {
 					try {
 
 						var key = JSON.stringify( {
-													  owner: inputSchedule.owner,
-													  name:  inputSchedule.name || null
-												  } );
+							owner: inputSchedule.owner,
+							name:  inputSchedule.name || null
+						} );
 
 						assert.strictEqual(
 							dronos._handlers[ key ],
@@ -335,9 +351,9 @@ describe( 'Dronos', function() {
 		it( 'should NOT listen to a scheduled item with wrong run function', function( done ) {
 
 			dronos.listen( {
-							   owner: '1234',
-							   name:  'a.test.schedule'
-						   }, null, function( err ) {
+				owner: '1234',
+				name:  'a.test.schedule'
+			}, null, function( err ) {
 
 				try {
 					assert.notEqual( err, null );
@@ -352,14 +368,12 @@ describe( 'Dronos', function() {
 
 		it( 'should NOT listen to a scheduled item without run function', function() {
 
-			assert.throws( function() {
-				dronos.listen( {
-								   owner: '1234',
-								   name:  'a.test.schedule'
-							   }, function() {
-					// NO-OP
-				} );
-			}, /run field must be a function/ );
+			dronos.listen( {
+				owner: '1234',
+				name:  'a.test.schedule'
+			}, function( err ) {
+				assert.equal( err.message, 'run field must be a function' );
+			} );
 
 		} );
 
@@ -379,18 +393,18 @@ describe( 'Dronos', function() {
 				}
 
 				dronos.remove( {
-								   owner: '1234',
-								   name:  'a.test.schedule'
-							   }, function( err, removedOne ) {
+					owner: '1234',
+					name:  'a.test.schedule'
+				}, function( err, removedOne ) {
 
 					try {
 						assert.ifError( err );
 						assert.strictEqual( removedOne, true );
 
 						dronos.remove( {
-										   owner: '1234',
-										   name:  'a.test.schedule'
-									   }, function( err, removedOne ) {
+							owner: '1234',
+							name:  'a.test.schedule'
+						}, function( err, removedOne ) {
 
 							try {
 								assert.ifError( err );
@@ -414,9 +428,9 @@ describe( 'Dronos', function() {
 		it( 'should NOT get a scheduled item that does not exist', function( done ) {
 
 			dronos.get( {
-							owner: '1234',
-							name:  'a.test.schedule'
-						}, function( err, schedule ) {
+				owner: '1234',
+				name:  'a.test.schedule'
+			}, function( err, schedule ) {
 
 				try {
 					assert.strictEqual( schedule, null );
@@ -432,9 +446,9 @@ describe( 'Dronos', function() {
 		it( 'should NOT listen to a scheduled item that does not exist', function( done ) {
 
 			dronos.listen( {
-							   owner: '1234',
-							   name:  'a.test.schedule'
-						   }, function() {
+				owner: '1234',
+				name:  'a.test.schedule'
+			}, function() {
 				// NO-OP
 			}, function( err ) {
 
@@ -456,17 +470,17 @@ describe( 'Dronos', function() {
 		beforeEach( function( done ) {
 
 			dronos = new Dronos( {
-									 prefix:  '_testing',
-									 mongodb: 'mongodb://localhost/testing'
-								 } );
+				prefix:  '_testing',
+				mongodb: 'mongodb://localhost/testing'
+			} );
 
 			dronos.remove( {
-							   owner: '1234',
-							   name:  'a.test.schedule'
-						   },
-						   function( err ) {
-							   done( err );
-						   } );
+					owner: '1234',
+					name:  'a.test.schedule'
+				},
+				function( err ) {
+					done( err );
+				} );
 
 		} );
 
@@ -474,17 +488,232 @@ describe( 'Dronos', function() {
 
 			dronos.stop();
 			dronos.remove( {
-							   owner: '1234',
-							   name:  'a.test.schedule'
-						   },
-						   function( err ) {
-							   done( err );
-						   } );
+					owner: '1234',
+					name:  'a.test.schedule'
+				},
+				function( err ) {
+					done( err );
+				} );
 			dronos = null;
 
 		} );
 
-		it( 'should fire an event', function( done ) {
+		it( 'should NOT fire a disabled event', function( done ) {
+
+			var inputSchedule = {
+				owner:      '1234',
+				name:       'a.test.schedule',
+				enabled:    false,
+				recurrence: '* * * * *',
+				params:     {
+					hi: 'there'
+				}
+			};
+
+			dronos.set( inputSchedule, function( err ) {
+
+				if ( err ) {
+					done( err );
+					return;
+				}
+
+				var runCount = 0;
+
+				var run = function( schedule, done ) {
+					runCount++;
+					done();
+				};
+				dronos.listen( inputSchedule, run, function( err ) {
+
+					if ( err ) {
+						done( err );
+						return;
+					}
+
+					try {
+
+						var key = JSON.stringify( {
+							owner: inputSchedule.owner,
+							name:  inputSchedule.name || null
+						} );
+
+						assert.strictEqual( dronos._handlers[ key ], run );
+
+						dronos._models.Dronos.update( {}, { $set: { _nextRun: '2011-10-10T00:00:00Z' } }, { multi: true }, function() {
+							dronos._running = true; // simulate call to .start()
+							dronos._runReadySchedules( function() {
+								dronos._runReadySchedules( function() {
+									dronos._running = false; // simulate call to .stop()
+
+									try {
+										assert.strictEqual( runCount, 0 );
+										done();
+									} catch ( e ) {
+										done( e );
+									}
+								} );
+							} );
+						} );
+
+					} catch ( e ) {
+						done( e );
+					}
+
+				} );
+
+			} );
+
+		} );
+
+		it( 'should NOT fire a disabled event using disable()', function( done ) {
+
+			var inputSchedule = {
+				owner:      '1234',
+				name:       'a.test.schedule',
+				enabled:    true,
+				recurrence: '* * * * *',
+				params:     {
+					hi: 'there'
+				}
+			};
+
+			dronos.set( inputSchedule, function( err ) {
+
+				if ( err ) {
+					done( err );
+					return;
+				}
+
+				var runCount = 0;
+				dronos.disable( inputSchedule, function( err ) {
+
+					if ( err ) {
+						done( err );
+						return;
+					}
+
+					var run = function( schedule, done ) {
+						runCount++;
+						done();
+					};
+					dronos.listen( inputSchedule, run, function( err ) {
+
+						if ( err ) {
+							done( err );
+							return;
+						}
+
+						try {
+
+							var key = JSON.stringify( {
+								owner: inputSchedule.owner,
+								name:  inputSchedule.name || null
+							} );
+
+							assert.strictEqual( dronos._handlers[ key ], run );
+
+							dronos._models.Dronos.update( {}, { $set: { _nextRun: '2011-10-10T00:00:00Z' } }, { multi: true }, function() {
+								dronos._running = true; // simulate call to .start()
+								dronos._runReadySchedules( function() {
+									dronos._runReadySchedules( function() {
+										dronos._running = false; // simulate call to .stop()
+
+										try {
+											assert.strictEqual( runCount, 0 );
+											done();
+										} catch ( e ) {
+											done( e );
+										}
+									} );
+								} );
+							} );
+
+						} catch ( e ) {
+							done( e );
+						}
+
+					} );
+				} );
+
+			} );
+
+		} );
+
+		it( 'should fire an enabled event using enable()', function( done ) {
+
+			var inputSchedule = {
+				owner:      '1234',
+				name:       'a.test.schedule',
+				enabled:    false,
+				recurrence: '* * * * *',
+				params:     {
+					hi: 'there'
+				}
+			};
+
+			dronos.set( inputSchedule, function( err ) {
+
+				if ( err ) {
+					done( err );
+					return;
+				}
+
+				var runCount = 0;
+				dronos.enable( inputSchedule, function( err ) {
+
+					if ( err ) {
+						done( err );
+						return;
+					}
+
+					var run = function( schedule, done ) {
+						runCount++;
+						done();
+					};
+					dronos.listen( inputSchedule, run, function( err ) {
+
+						if ( err ) {
+							done( err );
+							return;
+						}
+
+						try {
+
+							var key = JSON.stringify( {
+								owner: inputSchedule.owner,
+								name:  inputSchedule.name || null
+							} );
+
+							assert.strictEqual( dronos._handlers[ key ], run );
+
+							dronos._models.Dronos.update( {}, { $set: { _nextRun: '2011-10-10T00:00:00Z' } }, { multi: true }, function() {
+								dronos._running = true; // simulate call to .start()
+								dronos._runReadySchedules( function() {
+									dronos._runReadySchedules( function() {
+										dronos._running = false; // simulate call to .stop()
+
+										try {
+											assert.strictEqual( runCount, 1 );
+											done();
+										} catch ( e ) {
+											done( e );
+										}
+									} );
+								} );
+							} );
+
+						} catch ( e ) {
+							done( e );
+						}
+
+					} );
+				} );
+
+			} );
+
+		} );
+
+		it( 'should fire an event with default to enabled', function( done ) {
 
 			var inputSchedule = {
 				owner:      '1234',
@@ -518,17 +747,84 @@ describe( 'Dronos', function() {
 					try {
 
 						var key = JSON.stringify( {
-													  owner: inputSchedule.owner,
-													  name:  inputSchedule.name || null
-												  } );
+							owner: inputSchedule.owner,
+							name:  inputSchedule.name || null
+						} );
 
 						assert.strictEqual( dronos._handlers[ key ], run );
 
-						dronos._models.Dronos.update( {}, { $set: { _nextRun: '2011-10-10T00:00:00Z' } }, { multi: true }, function( err, count ) {
-							dronos._running = true;
+						dronos._models.Dronos.update( {}, { $set: { _nextRun: '2011-10-10T00:00:00Z' } }, { multi: true }, function() {
+							dronos._running = true; // simulate call to .start()
 							dronos._runReadySchedules( function() {
 								dronos._runReadySchedules( function() {
-									dronos._running = false;
+									dronos._running = false; // simulate call to .stop()
+
+									try {
+										assert.strictEqual( runCount, 1 );
+										done();
+									} catch ( e ) {
+										done( e );
+									}
+								} );
+							} );
+						} );
+
+					} catch ( e ) {
+						done( e );
+					}
+
+				} );
+
+			} );
+
+		} );
+
+		it( 'should fire an event with explicit enabled', function( done ) {
+
+			var inputSchedule = {
+				owner:      '1234',
+				name:       'a.test.schedule',
+				enabled:    true,
+				recurrence: '* * * * *',
+				params:     {
+					hi: 'there'
+				}
+			};
+
+			dronos.set( inputSchedule, function( err ) {
+
+				if ( err ) {
+					done( err );
+					return;
+				}
+
+				var runCount = 0;
+
+				var run = function( schedule, done ) {
+					runCount++;
+					done();
+				};
+				dronos.listen( inputSchedule, run, function( err ) {
+
+					if ( err ) {
+						done( err );
+						return;
+					}
+
+					try {
+
+						var key = JSON.stringify( {
+							owner: inputSchedule.owner,
+							name:  inputSchedule.name || null
+						} );
+
+						assert.strictEqual( dronos._handlers[ key ], run );
+
+						dronos._models.Dronos.update( {}, { $set: { _nextRun: '2011-10-10T00:00:00Z' } }, { multi: true }, function() {
+							dronos._running = true; // simulate call to .start()
+							dronos._runReadySchedules( function() {
+								dronos._runReadySchedules( function() {
+									dronos._running = false; // simulate call to .stop()
 
 									try {
 										assert.strictEqual( runCount, 1 );
