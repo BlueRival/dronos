@@ -45,7 +45,7 @@ describe( 'Dronos', function() {
 		it( 'should instantiate', function( done ) {
 			dronos = new Dronos( {
 				prefix:  '_testing',
-				mongodb: 'mongodb://localhost/testing'
+				mongodb: 'mongodb://localhost/_dronos_testing'
 			} );
 			done();
 		} );
@@ -58,7 +58,7 @@ describe( 'Dronos', function() {
 
 			dronos = new Dronos( {
 				prefix:  '_testing',
-				mongodb: 'mongodb://localhost/testing'
+				mongodb: 'mongodb://localhost/_dronos_testing'
 			} );
 
 			dronos.remove( {
@@ -385,43 +385,43 @@ describe( 'Dronos', function() {
 				recurrence: '*/15 * * * *'
 			};
 
-			dronos.set( inputSchedule, function( err ) {
+			async.series( [
+				function( done ) {
+					dronos.set( inputSchedule, done );
+				},
+				function( done ) {
+					dronos.remove( {
+						owner: '1234',
+						name:  'a.test.schedule'
+					}, function( err, removedOne ) {
 
-				if ( err ) {
-					done( err );
-					return;
+						try {
+							assert.ifError( err );
+							assert.strictEqual( removedOne, true );
+							done();
+						} catch ( e ) {
+							done( e );
+						}
+
+					} );
+				},
+				function( done ) {
+					dronos.remove( {
+						owner: '1234',
+						name:  'a.test.schedule'
+					}, function( err, removedOne ) {
+
+						try {
+							assert.ifError( err );
+							assert.strictEqual( removedOne, false );
+							done();
+						} catch ( e ) {
+							done( e );
+						}
+
+					} );
 				}
-
-				dronos.remove( {
-					owner: '1234',
-					name:  'a.test.schedule'
-				}, function( err, removedOne ) {
-
-					try {
-						assert.ifError( err );
-						assert.strictEqual( removedOne, true );
-
-						dronos.remove( {
-							owner: '1234',
-							name:  'a.test.schedule'
-						}, function( err, removedOne ) {
-
-							try {
-								assert.ifError( err );
-								assert.strictEqual( removedOne, false );
-								done();
-							} catch ( e ) {
-								done( e );
-							}
-
-						} );
-
-					} catch ( e ) {
-						done( e );
-					}
-
-				} );
-			} );
+			], done );
 
 		} );
 
@@ -471,7 +471,7 @@ describe( 'Dronos', function() {
 
 			dronos = new Dronos( {
 				prefix:  '_testing',
-				mongodb: 'mongodb://localhost/testing'
+				mongodb: 'mongodb://localhost/_dronos_testing'
 			} );
 
 			dronos.remove( {
